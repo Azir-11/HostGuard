@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3DE08A" />
+      <stop offset="1" stop-color="#12A866" />
+    </linearGradient>
+    <linearGradient id="gloss" x1="512" y1="100" x2="512" y2="540" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.24" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="shield" x1="512" y1="322" x2="512" y2="726" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#E7FBEF" />
+    </linearGradient>
+    <linearGradient id="check" x1="446" y1="446" x2="600" y2="566" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#17B870" />
+      <stop offset="1" stop-color="#0D8E53" />
+    </linearGradient>
+  </defs>
+
+  <!-- background squircle -->
+  <rect x="100" y="100" width="824" height="824" rx="188" fill="url(#bg)" />
+  <rect x="100" y="100" width="824" height="824" rx="188" fill="url(#gloss)" />
+
+  <!-- shield soft drop -->
+  <path
+    d="M360 330 L664 330 Q692 330 692 358 L692 508 C692 620 618 698 512 734 C406 698 332 620 332 508 L332 358 Q332 330 360 330 Z"
+    fill="#05311C"
+    opacity="0.18"
+  />
+  <!-- shield -->
+  <path
+    d="M360 322 L664 322 Q692 322 692 350 L692 500 C692 612 618 690 512 726 C406 690 332 612 332 500 L332 350 Q332 322 360 322 Z"
+    fill="url(#shield)"
+  />
+  <!-- check mark -->
+  <path
+    d="M446 508 L494 558 L600 446"
+    fill="none"
+    stroke="url(#check)"
+    stroke-width="46"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
