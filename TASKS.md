@@ -92,8 +92,10 @@ CleanMyMac X 风格「Sentinel」深色玻璃拟态界面，已落地：
 - [ ] 提权 / 权限统一处理（Hosts、系统设置）
 - [ ] 统一错误处理与通知
 - [ ] 国际化中 / 英（可选）
-- [ ] 应用图标、关于页、自动更新（可选）
-- [ ] 打包：DMG + 代码签名 / 公证（macOS）
+- [x] 关于页（设置页内）
+- [ ] 自定义应用图标（当前为 Tauri 默认）、自动更新（可选）
+- [x] 打包：`.app` + DMG 安装包（`pnpm tauri build` / `pnpm app:build`），README 含安装说明
+- [ ] 代码签名 / 公证（Apple Developer ID，面向他人分发）
 
 ---
 

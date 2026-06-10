@@ -8,6 +8,7 @@
     "build": "vite build && vue-tsc --noEmit",
     "preview": "vite preview",
     "tauri": "tauri",
+    "app:build": "tauri build",
     "typecheck": "vue-tsc --noEmit",
     "lint": "oxlint .",
     "lint:fix": "oxlint . --fix",
