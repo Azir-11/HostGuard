@@ -1,0 +1,109 @@
+/* ============================================================
+   HostGuard design tokens — "Sentinel" (premium dark, glassy)
+   Only CSS custom properties live here; component styling uses
+   UnoCSS utilities that reference these variables.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* Radii */
+  --radius-window: 22px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 9px;
+
+  /* Typography */
+  --font-display: "Sora Variable", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial,
+    sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Layered window geometry. The base window is inset on all sides;
+     the menu panel overhangs the left edge and floats at ~80% of the
+     base height, vertically centred. */
+  --base-top: 30px;
+  --base-right: 30px;
+  --base-bottom: 40px;
+  --base-left: 60px;
+  --panel-left: 30px;
+  --panel-w: 250px;
+  --panel-top: calc(var(--base-top) + (100vh - var(--base-top) - var(--base-bottom)) * 0.1);
+  --panel-h: calc((100vh - var(--base-top) - var(--base-bottom)) * 0.8);
+  /* Left margin of the content column (clears the overhanging panel). */
+  --content-ml: 236px;
+  /* Horizontal centre of the content column — used to centre the FAB. */
+  --fab-center-x: calc((var(--base-left) + var(--content-ml) + 100vw - var(--base-right)) / 2);
+
+  /* Dark palette (default) */
+  --c-bg-0: #0b0e13;
+  --c-bg-1: #11151c;
+  --c-bg-2: #161b24;
+  --c-elevated: rgba(255, 255, 255, 0.045);
+  --c-elevated-2: rgba(255, 255, 255, 0.08);
+  --c-hairline: rgba(255, 255, 255, 0.08);
+  --c-hairline-strong: rgba(255, 255, 255, 0.16);
+
+  --c-text: #e9eef5;
+  --c-text-2: #98a4b3;
+  --c-text-3: #5f6b7a;
+
+  --c-accent: #21c177;
+  --c-accent-2: #38e08a;
+  --c-accent-soft: rgba(33, 193, 119, 0.14);
+  --c-accent-glow: rgba(46, 224, 138, 0.4);
+  --grad-accent: linear-gradient(135deg, #38e08a 0%, #14a866 100%);
+
+  --c-blue: #4aa8ff;
+  --c-violet: #9a7cff;
+  --c-amber: #ffb14a;
+
+  /* macOS traffic lights */
+  --tl-close: #ff5f57;
+  --tl-min: #febc2e;
+  --tl-zoom: #28c840;
+
+  /* Layered surfaces */
+  --c-base-grad: linear-gradient(165deg, #161b24, #0c0f14);
+  --c-panel-grad:
+    linear-gradient(180deg, rgba(56, 224, 138, 0.1), transparent 55%),
+    linear-gradient(180deg, #232b37, #181d27);
+  --c-panel-border: rgba(255, 255, 255, 0.12);
+
+  /* Soft shadows kept short enough to fade fully inside the transparent
+     margins — no clipped "halo ring" around the window. */
+  --shadow-panel: 0 18px 40px -18px rgba(0, 0, 0, 0.55);
+  --shadow-pop: 0 12px 26px -14px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 12px 26px -10px var(--c-accent-glow);
+  --shadow-fab:
+    0 14px 26px -8px var(--c-accent-glow), 0 6px 14px -8px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --c-bg-0: #e7ebf1;
+  --c-bg-1: #eef1f6;
+  --c-bg-2: #ffffff;
+  --c-elevated: rgba(15, 23, 38, 0.035);
+  --c-elevated-2: rgba(15, 23, 38, 0.07);
+  --c-hairline: rgba(15, 23, 38, 0.1);
+  --c-hairline-strong: rgba(15, 23, 38, 0.18);
+
+  --c-text: #14202e;
+  --c-text-2: #5a6675;
+  --c-text-3: #97a1b0;
+
+  --c-accent-soft: rgba(17, 168, 102, 0.14);
+
+  --c-base-grad: linear-gradient(165deg, #ffffff, #e9edf3);
+  --c-panel-grad:
+    linear-gradient(180deg, rgba(33, 193, 119, 0.12), transparent 55%),
+    linear-gradient(180deg, #ffffff, #f1f5f9);
+  --c-panel-border: rgba(15, 23, 38, 0.1);
+
+  --shadow-panel: 0 16px 36px -18px rgba(20, 30, 50, 0.28);
+  --shadow-pop: 0 12px 24px -14px rgba(20, 30, 50, 0.22);
+}
