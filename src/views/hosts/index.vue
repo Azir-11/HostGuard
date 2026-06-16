@@ -14,7 +14,10 @@ const error = ref("");
 const search = ref("");
 const writable = ref(false);
 const flushing = ref(false);
-const hostsPath = ref("/etc/hosts");
+const hostsPath = ref("");
+// Display label: never seed a platform-specific literal. Falls back to a neutral
+// term until the backend `hosts_path` resolves (and if it ever fails to).
+const hostsLabel = computed(() => hostsPath.value || "系统 hosts 文件");
 
 const entries = computed(() => lines.value.filter((l): l is HostEntry => l.type === "entry"));
 
@@ -82,7 +85,7 @@ async function save(): Promise<boolean> {
     // No reload afterwards: the in-memory list already reflects what we wrote,
     // so re-parsing would rebuild every row and make the list flicker.
     await invoke("write_hosts", { content: serializeHosts(lines.value) });
-    message.success(`已保存到 ${hostsPath.value}`);
+    message.success(`已保存到 ${hostsLabel.value}`);
     return true;
   } catch (e) {
     const msg = String(e);
@@ -186,7 +189,7 @@ onUnmounted(() => fab.clear());
       <div class="flex-1 min-w-0">
         <div class="text-[13.5px] font-600">需要写入权限</div>
         <div class="text-12px text-fg-3">
-          修改 {{ hostsPath }} 需一次性管理员授权，授权后即可直接保存，无需重复输入密码。
+          修改 {{ hostsLabel }} 需一次性管理员授权，授权后即可直接保存，无需重复输入密码。
         </div>
       </div>
       <NButton type="primary" size="small" @click="grant">
@@ -218,7 +221,7 @@ onUnmounted(() => fab.clear());
       >
         <span class="i-ph-warning-circle-duotone text-44px text-amber" />
         <p class="m-0 max-w-420px text-fg-2 leading-[1.6]">
-          读取 {{ hostsPath }} 失败：{{ error }}
+          读取 {{ hostsLabel }} 失败：{{ error }}
         </p>
         <NButton @click="load">重试</NButton>
       </div>
