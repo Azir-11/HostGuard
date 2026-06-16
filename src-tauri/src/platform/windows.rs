@@ -31,16 +31,15 @@ pub fn hosts_writable() -> bool {
 /// 一次性授权：经 UAC 提升运行 icacls，把 Modify 权限授予当前用户；之后用户
 /// 即可直接写 hosts，无需再提权（对标 macOS 的 chmod +a）。
 pub async fn grant_hosts_access() -> Result<(), String> {
-    let user = std::env::var("USERNAME").unwrap_or_default();
-    if user.is_empty() {
-        return Err("无法获取当前用户".into());
-    }
     let hosts = hosts_path().to_string_lossy().to_string();
-    // Start-Process -Verb RunAs 触发 UAC；-Wait 阻塞；用 $p.ExitCode 透传结果。
+    // Start-Process -Verb RunAs 触发 UAC；-Wait 阻塞；$p.ExitCode 透传结果。
+    // 授权对象用「当前(未提权)用户的 SID」而非裸用户名：SID 在本地 / Microsoft /
+    // 域 / AzureAD 账户下都能被 icacls 唯一解析，避免裸用户名在域/AzureAD 机器上
+    // 解析失败或错配同名本地账户。SID 必须在未提权的外层进程取——提权进程的身份是
+    // 管理员而非目标用户。
     let ps = format!(
-        "$ErrorActionPreference='Stop'; try {{ $p = Start-Process icacls -ArgumentList '\"{hosts}\"','/grant','\"{user}:(M)\"' -Verb RunAs -WindowStyle Hidden -Wait -PassThru; if ($null -eq $p.ExitCode) {{ exit 1 }} else {{ exit $p.ExitCode }} }} catch {{ Write-Error 'UAC_CANCELLED'; exit 1 }}",
-        hosts = hosts,
-        user = user
+        "$ErrorActionPreference='Stop'; try {{ $sid = ([System.Security.Principal.WindowsIdentity]::GetCurrent()).User.Value; $p = Start-Process icacls -ArgumentList '\"{hosts}\"','/grant',\"*${{sid}}:(M)\" -Verb RunAs -WindowStyle Hidden -Wait -PassThru; if ($null -eq $p.ExitCode) {{ exit 1 }} else {{ exit $p.ExitCode }} }} catch {{ Write-Error 'UAC_CANCELLED'; exit 1 }}",
+        hosts = hosts
     );
     let out = tauri::async_runtime::spawn_blocking(move || {
         Command::new("powershell")
