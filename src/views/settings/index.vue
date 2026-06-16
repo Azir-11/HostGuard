@@ -58,7 +58,7 @@ async function openRepo() {
       >
         <div class="flex flex-col gap-3px min-w-0">
           <span class="text-14px font-500">HostGuard</span>
-          <span class="text-[12.5px] text-fg-3">macOS hosts、Shell 与系统配置管理工具</span>
+          <span class="text-[12.5px] text-fg-3">hosts、Shell 与系统配置管理工具</span>
         </div>
         <span class="px-10px py-4px rounded-[8px] font-mono text-13px text-fg-2 bg-elevated-2"
           >v0.1.0</span
