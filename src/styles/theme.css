@@ -14,11 +14,13 @@
   --radius-sm: 9px;
 
   /* Typography */
-  --font-display: "Sora Variable", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display:
+    "Sora Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-body:
-    -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial,
-    sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", "PingFang SC", "Microsoft YaHei",
+    system-ui, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    "JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Code", Consolas, Menlo, monospace;
 
   /* Layered window geometry. The base window is inset on all sides;
      the menu panel overhangs the left edge and floats at ~80% of the
