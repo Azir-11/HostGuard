@@ -15,15 +15,15 @@ jobs:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # 不写死版本：action-setup 读取 package.json 的 packageManager 字段，
       # 确保 CI 与本地使用完全一致的 pnpm，避免构建脚本白名单/解析差异。
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
@@ -52,7 +52,7 @@ jobs:
         run: pnpm tauri build
 
       - name: Upload installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: hostguard-${{ matrix.os }}
           path: |
