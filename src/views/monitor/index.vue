@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useFabStore } from "@/store/fab";
 
 interface SystemStats {
+  os: string;
   cpu_usage: number;
   per_core: number[];
   mem_total: number;
@@ -197,8 +198,8 @@ onUnmounted(() => {
           </template>
         </article>
 
-        <!-- load + uptime -->
-        <article class="card p-20px flex flex-col gap-14px">
+        <!-- load + uptime (Windows 无 load average，隐藏整卡) -->
+        <article v-if="stats.os !== 'windows'" class="card p-20px flex flex-col gap-14px">
           <div class="flex items-center gap-10px">
             <span class="i-ph-gauge-duotone text-22px text-accent-2 shrink-0" />
             <span class="text-14px font-600">平均负载</span>

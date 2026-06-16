@@ -8,7 +8,10 @@ import { useFabStore } from "@/store/fab";
 
 interface ShellConfig {
   name: string;
+  label: string;
+  path: string;
   exists: boolean;
+  reload_hint: string;
 }
 
 const message = useMessage();
@@ -16,16 +19,15 @@ const dialog = useDialog();
 const appStore = useAppStore();
 const fab = useFabStore();
 
-const files = ref<ShellConfig[]>(
-  ["zshrc", "zprofile", "zshenv", "zlogin"].map((name) => ({ name, exists: false })),
-);
-const active = ref("zshrc");
+const files = ref<ShellConfig[]>([]);
+const active = ref("");
 const content = ref("");
 const original = ref("");
 
 const dirty = computed(() => content.value !== original.value);
-const activePath = computed(() => `~/.${active.value}`);
-const sourceCmd = computed(() => `source ${activePath.value}`);
+const activeConfig = computed(() => files.value.find((f) => f.name === active.value));
+const activePath = computed(() => activeConfig.value?.path ?? "");
+const reloadHint = computed(() => activeConfig.value?.reload_hint ?? "");
 
 async function refreshList() {
   try {
@@ -51,7 +53,7 @@ function switchFile(name: string) {
   if (dirty.value) {
     dialog.warning({
       title: "未保存的更改",
-      content: `「${activePath.value}」有未保存的更改，切换将丢弃，确定继续？`,
+      content: `「${activeConfig.value?.label ?? active.value}」有未保存的更改，切换将丢弃，确定继续？`,
       positiveText: "丢弃并切换",
       negativeText: "取消",
       onPositiveClick: () => loadFile(name),
@@ -76,16 +78,17 @@ async function save(): Promise<boolean> {
 
 async function copySource() {
   try {
-    await navigator.clipboard.writeText(sourceCmd.value);
+    await navigator.clipboard.writeText(reloadHint.value);
     message.success("已复制命令");
   } catch {
-    message.info(sourceCmd.value);
+    message.info(reloadHint.value);
   }
 }
 
 onMounted(async () => {
   await refreshList();
-  await loadFile("zshrc");
+  const first = files.value[0]?.name;
+  if (first) await loadFile(first);
   fab.set({ label: "保存", icon: "i-ph-floppy-disk-duotone", run: save });
 });
 onUnmounted(() => fab.clear());
@@ -107,7 +110,7 @@ onUnmounted(() => fab.clear());
           "
           @click="switchFile(f.name)"
         >
-          .{{ f.name }}
+          {{ f.label }}
           <span v-if="!f.exists" class="w-5px h-5px rounded-full bg-fg-3" title="尚未创建" />
         </button>
       </div>
@@ -121,12 +124,12 @@ onUnmounted(() => fab.clear());
       </NButton>
     </div>
 
-    <!-- source hint -->
+    <!-- reload hint -->
     <div class="flex items-center gap-10px px-14px py-9px card text-12px text-fg-2">
       <span class="i-ph-info-duotone text-16px text-accent-2 shrink-0" />
       <span class="flex-1">
         保存后需在终端执行
-        <code class="font-mono text-fg">{{ sourceCmd }}</code>
+        <code class="font-mono text-fg">{{ reloadHint }}</code>
         或重启终端生效。
       </span>
       <button
