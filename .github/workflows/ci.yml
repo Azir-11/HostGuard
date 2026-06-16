@@ -45,7 +45,17 @@ jobs:
       - name: Frontend lint & format
         run: pnpm lint && pnpm format:check
 
-      # 全量编译 + 链接：Windows job 即验证 #[cfg(windows)] 分支编译通过。
-      # 先 pnpm build 产出 dist/ 供 tauri::generate_context! 编译期嵌入。
-      - name: Rust build
-        run: cargo build --manifest-path src-tauri/Cargo.toml
+      # 全量打包：tauri build 编译 Rust 并产出各平台安装器，真正验证打包链路
+      # （Windows: nsis setup.exe；macOS: app + dmg）。beforeBuildCommand 会先
+      # 跑 pnpm build 产出 dist/ 供 tauri::generate_context! 编译期嵌入。
+      - name: App build (tauri build)
+        run: pnpm tauri build
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: hostguard-${{ matrix.os }}
+          path: |
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/dmg/*.dmg
+          if-no-files-found: ignore
