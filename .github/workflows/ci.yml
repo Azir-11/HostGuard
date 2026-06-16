@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install JS deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Frontend build (vite + vue-tsc)
+        run: pnpm build
+
+      - name: Frontend lint & format
+        run: pnpm lint && pnpm format:check
+
+      # 全量编译 + 链接：Windows job 即验证 #[cfg(windows)] 分支编译通过。
+      # 先 pnpm build 产出 dist/ 供 tauri::generate_context! 编译期嵌入。
+      - name: Rust build
+        run: cargo build --manifest-path src-tauri/Cargo.toml
