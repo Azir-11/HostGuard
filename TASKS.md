@@ -91,8 +91,10 @@ CleanMyMac X 风格「Sentinel」深色玻璃拟态界面，已落地：
 
 ## 阶段 6 — 工程化收尾
 
-- [ ] Rust 命令统一封装 + 前端 `invoke` 类型安全封装
-- [ ] 提权 / 权限统一处理（Hosts、系统设置）
+- [x] Rust 命令按平台抽象为 `platform` 模块（`#[cfg]` macOS/Windows），命令层薄封装；新增 `hosts_path`
+- [x] 提权 / 权限统一处理：macOS（chmod +a ACL / sudoers）与 Windows（icacls 一次性 / ipconfig 免提权）对齐“授权一次”
+- [ ] Windows 运行期实测（hosts 写入 / UAC / DNS / PowerShell + cmd 配置）
+- [x] CI：macOS + Windows 双平台编译验证（GitHub Actions）
 - [ ] 统一错误处理与通知
 - [ ] 国际化中 / 英（可选）
 - [x] 关于页（设置页内）
