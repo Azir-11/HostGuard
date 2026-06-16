@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import SideBar from "./components/SideBar.vue";
 import WindowControls from "./components/WindowControls.vue";
 import { useFabStore } from "@/store/fab";
+import { isWindows } from "@/composables/usePlatform";
 import { allItems } from "./menu";
 
 const route = useRoute();
@@ -18,7 +19,9 @@ const current = computed(() => allItems.find((m) => m.path === route.path));
     <div
       class="absolute top-[var(--base-top)] right-[var(--base-right)] bottom-[var(--base-bottom)] left-[var(--base-left)] rounded-window overflow-hidden border border-hairline bg-base"
     >
-      <WindowControls class="absolute top-18px left-20px z-20" />
+      <WindowControls
+        :class="isWindows ? 'absolute top-0 right-0 z-30' : 'absolute top-18px left-20px z-20'"
+      />
 
       <div class="absolute inset-0 ml-[var(--content-ml)] flex flex-col">
         <header
@@ -31,7 +34,8 @@ const current = computed(() => allItems.find((m) => m.path === route.path));
               {{ current?.label ?? "HostGuard" }}
             </h1>
           </div>
-          <div class="flex gap-8px">
+          <!-- Windows 下让出右上角给方形窗口控件，避免与搜索/通知重叠 -->
+          <div class="flex gap-8px" :class="{ 'mr-[120px]': isWindows }">
             <button class="ghost-btn" title="搜索">
               <span class="i-ph-magnifying-glass-bold" />
             </button>
