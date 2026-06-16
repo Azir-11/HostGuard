@@ -38,7 +38,7 @@ pub async fn grant_hosts_access() -> Result<(), String> {
     let hosts = hosts_path().to_string_lossy().to_string();
     // Start-Process -Verb RunAs 触发 UAC；-Wait 阻塞；用 $p.ExitCode 透传结果。
     let ps = format!(
-        "$ErrorActionPreference='Stop'; try {{ $p = Start-Process icacls -ArgumentList '\"{hosts}\"','/grant','\"{user}:(M)\"' -Verb RunAs -WindowStyle Hidden -Wait -PassThru; exit $p.ExitCode }} catch {{ Write-Error 'UAC_CANCELLED'; exit 1 }}",
+        "$ErrorActionPreference='Stop'; try {{ $p = Start-Process icacls -ArgumentList '\"{hosts}\"','/grant','\"{user}:(M)\"' -Verb RunAs -WindowStyle Hidden -Wait -PassThru; if ($null -eq $p.ExitCode) {{ exit 1 }} else {{ exit $p.ExitCode }} }} catch {{ Write-Error 'UAC_CANCELLED'; exit 1 }}",
         hosts = hosts,
         user = user
     );
