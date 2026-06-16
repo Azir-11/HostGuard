@@ -11,14 +11,26 @@ import {
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { StreamLanguage, defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { shell } from "@codemirror/legacy-modes/mode/shell";
+import { powerShell } from "@codemirror/legacy-modes/mode/powershell";
 import { oneDark } from "@codemirror/theme-one-dark";
 
-const props = defineProps<{ modelValue: string; dark: boolean }>();
+// `lang` is the active shell config's stable name (e.g. "powershell" / "cmd" /
+// "zshrc"); used to pick syntax highlighting so Windows PowerShell isn't shown
+// with POSIX-shell colors.
+const props = defineProps<{ modelValue: string; dark: boolean; lang?: string }>();
 const emit = defineEmits<{ "update:modelValue": [value: string] }>();
 
 const host = ref<HTMLDivElement | null>(null);
 const view = shallowRef<EditorView>();
 const themeComp = new Compartment();
+const langComp = new Compartment();
+
+// cmd (batch) has no good legacy mode → leave plain; zsh/bash/sh → shell.
+function langExt(lang?: string) {
+  if (lang === "powershell") return [StreamLanguage.define(powerShell)];
+  if (lang === "cmd") return [];
+  return [StreamLanguage.define(shell)];
+}
 
 const baseTheme = EditorView.theme({
   "&": { height: "100%", fontSize: "13px", backgroundColor: "transparent" },
@@ -54,7 +66,7 @@ onMounted(() => {
         history(),
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         EditorView.lineWrapping,
-        StreamLanguage.define(shell),
+        langComp.of(langExt(props.lang)),
         baseTheme,
         themeComp.of(themeExt(props.dark)),
         EditorView.updateListener.of((u) => {
@@ -82,6 +94,12 @@ watch(
 watch(
   () => props.dark,
   (d) => view.value?.dispatch({ effects: themeComp.reconfigure(themeExt(d)) }),
+);
+
+// Active file switch (e.g. PowerShell → cmd) → reconfigure the language.
+watch(
+  () => props.lang,
+  (l) => view.value?.dispatch({ effects: langComp.reconfigure(langExt(l)) }),
 );
 </script>
 

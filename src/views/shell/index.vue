@@ -142,7 +142,7 @@ onUnmounted(() => fab.clear());
 
     <!-- editor -->
     <div class="flex-1 min-h-0 card overflow-hidden">
-      <CodeEditor v-model="content" :dark="appStore.isDark" />
+      <CodeEditor v-model="content" :dark="appStore.isDark" :lang="activeConfig?.name" />
     </div>
   </div>
 </template>
