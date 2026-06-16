@@ -87,8 +87,32 @@ pub async fn flush_dns() -> Result<(), String> {
 }
 
 // ───── Shell ─────（PowerShell $PROFILE + cmd AutoRun）
+/// 真正的 PowerShell 配置文件路径：直接问 PowerShell 自己取
+/// `$PROFILE.CurrentUserCurrentHost`，因此跨版本正确（Windows PowerShell 5.1 →
+/// Documents\WindowsPowerShell\…；PowerShell 7 → Documents\PowerShell\…），且自动
+/// 跟随 OneDrive Known-Folder-Move 对「文档」的重定向——避免编辑了一个 `. $PROFILE`
+/// 永远加载不到的文件。优先 pwsh(7)，否则用必定存在的 Windows PowerShell 5.1；
+/// 两者都失败时回退到 5.1 默认路径。
 fn ps_profile_path() -> PathBuf {
-    home().join("Documents\\PowerShell\\Microsoft.PowerShell_profile.ps1")
+    for exe in ["pwsh", "powershell"] {
+        let out = Command::new(exe)
+            .args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "$PROFILE.CurrentUserCurrentHost",
+            ])
+            .output();
+        if let Ok(out) = out {
+            if out.status.success() {
+                let p = String::from_utf8_lossy(&out.stdout).trim().to_string();
+                if !p.is_empty() {
+                    return PathBuf::from(p);
+                }
+            }
+        }
+    }
+    home().join("Documents\\WindowsPowerShell\\Microsoft.PowerShell_profile.ps1")
 }
 fn cmd_autorun_path() -> PathBuf {
     home().join(".hostguard.cmd_autorun.cmd")
