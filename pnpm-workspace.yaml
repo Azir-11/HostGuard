@@ -1,0 +1,5 @@
+# pnpm 10+/11 把构建脚本白名单从 package.json 的 pnpm.onlyBuiltDependencies
+# 迁到了这里。允许 esbuild 运行其 postinstall（放置原生二进制），否则 pnpm
+# 会以 ERR_PNPM_IGNORED_BUILDS 中止安装/构建。
+allowBuilds:
+  esbuild: true
