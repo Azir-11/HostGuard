@@ -149,7 +149,10 @@ pub fn on_shell_saved(name: &str, path: &Path) -> Result<(), String> {
     if name != "cmd" {
         return Ok(());
     }
-    let val = path.to_string_lossy().to_string();
+    // cmd.exe 启动时把 AutoRun 值当命令行执行，并按空格切词。路径裸写时若含空格
+    // （如用户名带空格、OneDrive 重定向路径）会被拆成「命令 + 参数」而执行失败，
+    // 每开一个 cmd 窗口都报错且配置永不生效。用 call "<path>" 包引号即可正确执行。
+    let val = format!("call \"{}\"", path.to_string_lossy());
     let out = Command::new("reg")
         .args([
             "add",
