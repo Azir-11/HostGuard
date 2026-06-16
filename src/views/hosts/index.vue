@@ -13,6 +13,7 @@ const loading = ref(true);
 const error = ref("");
 const search = ref("");
 const writable = ref(false);
+const flushing = ref(false);
 
 const entries = computed(() => lines.value.filter((l): l is HostEntry => l.type === "entry"));
 
@@ -94,6 +95,35 @@ async function save(): Promise<boolean> {
   }
 }
 
+// Flush the DNS resolver cache. First use installs a one-time, narrowly-scoped
+// passwordless rule (single admin prompt); every flush after that is silent and
+// survives app restarts.
+async function flushDns() {
+  if (flushing.value) return;
+  flushing.value = true;
+  try {
+    let granted = await invoke<boolean>("dns_flush_granted");
+    if (!granted) {
+      await invoke("grant_dns_flush_access"); // one-time admin prompt
+      granted = await invoke<boolean>("dns_flush_granted");
+      if (!granted) {
+        message.error("授权未完成，无法刷新");
+        return;
+      }
+      message.success("已授权，之后刷新无需再次输入密码");
+    }
+    await invoke("flush_dns_cache");
+    message.success("已刷新 DNS 缓存");
+  } catch (e) {
+    const msg = String(e);
+    if (msg.includes("已取消")) message.info("已取消授权");
+    else if (msg.includes("NO_PERMISSION")) message.warning("缺少权限，请重试以授权");
+    else message.error(`刷新失败：${msg}`);
+  } finally {
+    flushing.value = false;
+  }
+}
+
 const cols = "grid-cols-[44px_1fr_1.6fr_1fr_44px]";
 
 function syncFab() {
@@ -131,6 +161,10 @@ onUnmounted(() => fab.clear());
       </NInput>
       <div class="flex-1" />
       <span class="text-13px text-fg-3">{{ enabledCount }} / {{ entries.length }} 启用</span>
+      <NButton quaternary :loading="flushing" title="清空系统 DNS 解析缓存" @click="flushDns">
+        <template #icon><span class="i-ph-broom-bold" /></template>
+        刷新 DNS 缓存
+      </NButton>
       <NButton quaternary @click="load">
         <template #icon><span class="i-ph-arrow-clockwise-bold" /></template>
         重载

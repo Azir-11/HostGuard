@@ -54,6 +54,7 @@ CleanMyMac X 风格「Sentinel」深色玻璃拟态界面，已落地：
 - [x] Rust：写回 `/etc/hosts`（授权后直接写入，保存前备份到 `~/.hostguard.hosts.bak`）
 - [x] 前端：条目表格，增 / 删 / 改 / 启用停用 + 搜索过滤
 - [x] FAB「保存」提交更改、工具栏「重载」从磁盘重读
+- [x] 工具栏「刷新 DNS 缓存」：`dscacheutil -flushcache` + `killall -HUP mDNSResponder`；**一次性 sudoers 免密授权**（首次单次管理员弹窗，之后静默、跨重启保留；安装前 `visudo -cf` 校验，仅放行这两条精确命令）
 - [ ] 多方案 Profiles（开发 / 测试 / 生产）一键切换
 - [ ] 原文编辑模式（语法高亮）与结构化模式互转
 - [ ] 导入 / 导出、备份回滚 UI
@@ -76,15 +77,17 @@ CleanMyMac X 风格「Sentinel」深色玻璃拟态界面，已落地：
 - [ ] 常用 macOS `defaults` 开关（显示隐藏文件、Dock 等，操作前二次确认）
 - [ ] `~/.ssh/config` 管理（可选）
 
-## 阶段 5 — 系统用量监控
+## 阶段 5 — 系统用量监控 🟡（核心实时监控完成，按"最省"范围）
 
-- [ ] Rust：接入 `sysinfo` crate，封装采集命令
-- [ ] CPU：总体 + 每核使用率
-- [ ] 内存：已用 / 可用 / swap
+- [x] Rust：接入 `sysinfo` crate（`default-features = false`，仅 `system` 特性），常驻 `System` 句柄置于 Tauri state，单命令仅刷新 CPU + 内存
+- [x] CPU：总体 + 每核使用率
+- [x] 内存：已用 / 可用 / swap
+- [x] 平均负载（1 / 5 / 15 分钟）+ 运行时长 + 主机名
+- [x] 前端定时轮询（~1.5s，仅监控页挂载且窗口可见时；其它页面零轮询，离开即停）
 - [ ] 磁盘：各挂载点容量与使用率
 - [ ] 网络：实时上下行速率
 - [ ] 进程：CPU / 内存 Top N，支持结束进程
-- [ ] 定时轮询 + 趋势图表；电池 / 温度（可选）
+- [ ] 趋势图表；电池 / 温度（可选）
 
 ## 阶段 6 — 工程化收尾
 
