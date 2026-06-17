@@ -51,10 +51,10 @@ jobs:
       - name: Build and publish release
         uses: tauri-apps/tauri-action@v0
         env:
-          # 用 PAT（仓库 Secret RELEASE_TOKEN）而非默认 GITHUB_TOKEN：
-          # 后者在本仓库环境里始终拿不到创建 Release 的写权限（Resource not
-          # accessible by integration）。PAT 自带 Contents:write，绕过该限制。
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          # 官方标准：用自动签发的 GITHUB_TOKEN。它能否创建 Release 取决于仓库
+          # Settings → Actions → Workflow permissions 是否为「Read and write」——
+          # 只读时 job 级 permissions 也无法提权（仓库设置是硬上限）。
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
