@@ -24,6 +24,9 @@ src-tauri/.tauri/
 *.key
 *.key.pub
 
+# 发布交接说明（含口令，本地查看用）
+RELEASE_HANDOFF.local.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
