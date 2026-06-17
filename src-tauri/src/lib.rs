@@ -132,6 +132,8 @@ fn init_system() -> System {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(Mutex::new(init_system()))
         .invoke_handler(tauri::generate_handler![
             hosts_writable,

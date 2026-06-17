@@ -20,6 +20,10 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = ["macos-private-api"] }
 tauri-plugin-opener = "2"
+# 应用内更新：updater 从 GitHub Releases 的 latest.json 检查并安装签名更新；
+# process 提供安装后 relaunch() 重启进入新版本。
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 # System telemetry (CPU / memory / load). `default-features = false` with only
