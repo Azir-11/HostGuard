@@ -28,9 +28,5 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 # System telemetry. `default-features = false` 精选所需采集器：system（CPU/内存/负载）、
 # disk（磁盘占用）、component（温度，尽力而为，Windows 走 WMI 可能为空）。无 network/process。
-sysinfo = { version = "0.33", default-features = false, features = [
-  "system",
-  "disk",
-  "component",
-] }
+sysinfo = { version = "0.33", default-features = false, features = ["system", "disk", "component"] }
 

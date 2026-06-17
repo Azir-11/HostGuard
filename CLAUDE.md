@@ -38,7 +38,8 @@ The frontend never touches the filesystem or runs privileged commands directly. 
 `src-tauri/src/platform/mod.rs` holds the cross-platform logic (read/write/backup orchestration, the `ShellConfig` struct) and `#[cfg(target_os = ...)]`-dispatches to `macos.rs` or `windows.rs` via `use self::<os> as sys`. Each platform module implements the same surface: `hosts_path`, `hosts_writable`, `grant_hosts_access`, `shell_configs`, `shell_path`, `on_shell_saved`, `backup_path`, and the DNS-flush trio. When adding a platform-specific entry point, export it from both modules and re-export in `mod.rs`'s `pub use sys::{...}`.
 
 Key platform divergences already encoded (preserve these — they fix real bugs, see git log):
-- **Hosts write permission** is a one-time elevation that grants the *current user* persistent write access, so later saves need no prompt: macOS `chmod +a` ACL via `osascript ... with administrator privileges`; Windows `icacls /grant` via UAC-elevated `Start-Process -Verb RunAs`. Windows grants to the user's **SID** (resolved in the un-elevated process), not the bare username, to work on domain/AzureAD machines.
+
+- **Hosts write permission** is a one-time elevation that grants the _current user_ persistent write access, so later saves need no prompt: macOS `chmod +a` ACL via `osascript ... with administrator privileges`; Windows `icacls /grant` via UAC-elevated `Start-Process -Verb RunAs`. Windows grants to the user's **SID** (resolved in the un-elevated process), not the bare username, to work on domain/AzureAD machines.
 - **Shell configs**: macOS = `~/.zshrc`/`.zprofile`/`.zshenv`/`.zlogin`; Windows = PowerShell `$PROFILE` (queried from PowerShell itself so it follows version + OneDrive redirection) + a cmd AutoRun batch file (`on_shell_saved` points `HKCU\...\Command Processor\AutoRun` at it via `call "<path>"`).
 - **DNS flush**: macOS needs a one-time narrowly-scoped passwordless sudoers rule (`dscacheutil` + `killall mDNSResponder`); Windows `ipconfig /flushdns` needs no elevation (its grant/granted commands are no-ops returning true).
 
@@ -69,5 +70,5 @@ A single `sysinfo::System` lives in Tauri managed state (`Mutex<System>`) so CPU
 
 ## Conventions
 
-- Code comments in this repo are frequently in Chinese (especially Rust platform code explaining *why* a particular elevation/escaping approach is used). Match the surrounding language and keep the rationale when editing — several comments document non-obvious cross-platform bug fixes.
+- Code comments in this repo are frequently in Chinese (especially Rust platform code explaining _why_ a particular elevation/escaping approach is used). Match the surrounding language and keep the rationale when editing — several comments document non-obvious cross-platform bug fixes.
 - Commit messages follow Conventional Commits with a Chinese subject, e.g. `fix(hosts/win): ...`.
