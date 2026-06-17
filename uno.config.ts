@@ -50,7 +50,6 @@ export default defineConfig({
     "i-ph-minus-bold",
     "i-ph-moon-stars-duotone",
     "i-ph-plus-bold",
-    "i-ph-pulse-duotone",
     "i-ph-radar-duotone",
     "i-ph-shield-check-duotone",
     "i-ph-sliders-horizontal-duotone",

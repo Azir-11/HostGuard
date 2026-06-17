@@ -43,17 +43,6 @@ export const groups: MenuGroup[] = [
       },
     ],
   },
-  {
-    title: "监控",
-    items: [
-      {
-        key: "monitor",
-        label: "系统用量",
-        icon: "i-ph-pulse-duotone",
-        path: "/monitor",
-      },
-    ],
-  },
 ];
 
 /** Pinned to the bottom of the panel. */
