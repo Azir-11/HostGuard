@@ -1,0 +1,68 @@
+name: Release
+
+# 打 v* tag 时触发：构建 macOS(arm64) + Windows 安装包并发布到 GitHub Release。
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    name: release (${{ matrix.platform }})
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest # 现为 Apple Silicon(arm64)，对应 M 芯片
+            args: --target aarch64-apple-darwin
+          - platform: windows-latest
+            args: ""
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin' || '' }}
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install JS deps
+        run: pnpm install --frozen-lockfile
+
+      # tauri-action 会跑 beforeBuildCommand(pnpm build) → tauri build，
+      # 用签名私钥签名更新产物，创建并发布 Release，自动上传 dmg/nsis/
+      # 更新归档/.sig 以及 latest.json（uploadUpdaterJson 默认 true）。
+      - name: Build and publish release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: HostGuard ${{ github.ref_name }}
+          releaseBody: |
+            ## 下载
+            - **Windows**：`HostGuard_*_x64-setup.exe`
+            - **macOS（Apple Silicon / M 芯片）**：`HostGuard_*_aarch64.dmg`
+
+            > macOS 包未做 Apple 公证，首次打开请右键 →「打开」以绕过 Gatekeeper。
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
