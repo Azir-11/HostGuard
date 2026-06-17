@@ -5,10 +5,42 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
-  build:
-    name: build (${{ matrix.os }})
+  # 轻量校验：每次 push / PR 都跑。只用一个 ubuntu runner（最便宜），
+  # lint / format / 前端类型检查都与平台无关，秒级~1 分钟，不浪费打包时间。
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install JS deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Frontend build (vite + vue-tsc)
+        run: pnpm build
+
+      - name: Lint & format
+        run: pnpm lint && pnpm format:check
+
+  # 全量打包验证（mac + win 矩阵，编译 Rust + 产出安装器，成本高）：
+  # 仅在「PR 到 main」或「手动触发 workflow_dispatch」时跑，日常 push 不触发，
+  # 避免每次推送都全量打包浪费时间。正式发版由 release.yml 在打 v* tag 时负责。
+  package:
+    name: package (${{ matrix.os }})
+    needs: check
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
@@ -17,8 +49,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # 不写死版本：action-setup 读取 package.json 的 packageManager 字段，
-      # 确保 CI 与本地使用完全一致的 pnpm，避免构建脚本白名单/解析差异。
       - name: Install pnpm
         uses: pnpm/action-setup@v5
 
@@ -39,17 +69,8 @@ jobs:
       - name: Install JS deps
         run: pnpm install --frozen-lockfile
 
-      - name: Frontend build (vite + vue-tsc)
-        run: pnpm build
-
-      - name: Frontend lint & format
-        run: pnpm lint && pnpm format:check
-
-      # 全量打包：tauri build 编译 Rust 并产出各平台安装器，真正验证打包链路
-      # （Windows: nsis setup.exe；macOS: app + dmg）。beforeBuildCommand 会先
-      # 跑 pnpm build 产出 dist/ 供 tauri::generate_context! 编译期嵌入。
-      # 因 tauri.conf.json 开启了 createUpdaterArtifacts，构建会签名更新产物，
-      # 需提供签名私钥（同 release.yml 的 Secret）。否则报「no private key」。
+      # createUpdaterArtifacts 已开启 → 构建会签名更新产物，需提供签名私钥
+      # （仓库级 Secret，与 release.yml 相同）。
       - name: App build (tauri build)
         run: pnpm tauri build
         env:
