@@ -1,6 +1,6 @@
 [package]
 name = "hostguard"
-version = "0.0.10"
+version = "0.1.0"
 description = "HostGuard — manage hosts, shell config and system stats"
 authors = ["Azir <alessandradiel743@gmail.com>"]
 edition = "2021"
